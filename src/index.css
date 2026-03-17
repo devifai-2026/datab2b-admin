@@ -1,0 +1,41 @@
+
+@import "tailwindcss";
+
+@theme {
+  --color-warm: #fdfcfb;
+}
+
+:root {
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--color-warm);
+}
+
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar-x::-webkit-scrollbar:horizontal {
+  display: none;
+}
+
+.no-scrollbar-x {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
