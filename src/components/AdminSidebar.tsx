@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, List, Database, LogOut, ChevronRight, X } from 'lucide-react';
+import { LayoutDashboard, List, Database, FileText, LogOut, ChevronRight, X, Users } from 'lucide-react';
 import { cn } from '../lib/utils';
 import authService from '../services/authService';
 import { motion, AnimatePresence } from 'motion/react';
@@ -24,6 +24,8 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed }: AdminSide
     { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
     { name: 'Categories', icon: List, href: '/categories' },
     { name: 'Data', icon: Database, href: '/data' },
+    { name: 'Invoices', icon: FileText, href: '/invoices' },
+    { name: 'Users', icon: Users, href: '/users' },
   ];
 
   const sidebarContent = (
