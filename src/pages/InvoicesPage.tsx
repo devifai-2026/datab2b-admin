@@ -3,6 +3,9 @@ import AdminLayout from '../components/AdminLayout';
 import { Loader2, Calendar, User as UserIcon, Database, Download } from 'lucide-react';
 import invoiceService from '../services/invoiceService';
 import { toast } from 'react-toastify';
+import { io } from 'socket.io-client';
+
+const socket = io('http://localhost:5000');
 
 interface Invoice {
   _id: string;
@@ -30,22 +33,36 @@ export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchInvoices = async () => {
+  const fetchInvoices = async (showLoader = true) => {
     try {
-      setIsLoading(true);
+      if (showLoader) setIsLoading(true);
       const data = await invoiceService.getInvoices();
       setInvoices(data);
     } catch {
       toast.error('Failed to fetch invoices');
     } finally {
-      setIsLoading(false);
+      if (showLoader) setIsLoading(false);
     }
   };
 
   useEffect(() => {
     fetchInvoices();
-    const interval = setInterval(fetchInvoices, 15000); // refresh every 15s for realtime
-    return () => clearInterval(interval);
+
+    // Real-time listeners
+    socket.on('new_purchased', (data: { productName: string }) => {
+      toast.success(`New order received! Product: ${data.productName}`);
+      fetchInvoices(false);
+    });
+
+    socket.on('invoice_canceled', (data: { invoiceId: string }) => {
+      toast.info(`An order was canceled (ID: ${data.invoiceId.slice(-6).toUpperCase()})`);
+      fetchInvoices(false);
+    });
+
+    return () => {
+      socket.off('new_purchased');
+      socket.off('invoice_canceled');
+    };
   }, []);
 
   const downloadInvoice = async (invoice: Invoice) => {
@@ -123,8 +140,13 @@ export default function InvoicesPage() {
                   </td>
                   <td className="px-8 py-6 font-bold text-stone-900">{invoice.currency} {invoice.amount} {invoice.quantity > 1 && `(${invoice.quantity} items)`}</td>
                   <td className="px-8 py-6">
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${invoice.status === 'paid' ? 'bg-emerald-100 text-emerald-700' : invoice.status === 'failed' ? 'bg-rose-100 text-rose-700' : 'bg-stone-100 text-stone-600'}`}>
-                      {invoice.status}
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                      invoice.status === 'paid' ? 'bg-emerald-100 text-emerald-700' : 
+                      invoice.status === 'canceled' ? 'bg-rose-100 text-rose-700' : 
+                      invoice.status === 'failed' ? 'bg-rose-100 text-rose-700' : 
+                      'bg-stone-100 text-stone-600'
+                    }`}>
+                      {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
                     </span>
                   </td>
                   <td className="px-8 py-6 flex items-center gap-2 text-stone-500 text-sm font-bold">
