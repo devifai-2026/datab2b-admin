@@ -3,6 +3,7 @@ import { LayoutDashboard, List, Database, FileText, LogOut, ChevronRight, X, Use
 import { cn } from '../lib/utils';
 import authService from '../services/authService';
 import { motion, AnimatePresence } from 'motion/react';
+import logo from "../../src/assets/logo.jpeg"
 
 interface AdminSidebarProps {
   isOpen: boolean;
@@ -36,7 +37,7 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed }: AdminSide
       )}>
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-orange-700 shadow-lg shadow-orange-200">
-            <Database size={20} className="text-white" />
+            <img src={logo} alt="logo"   className="w-full h-full object-cover" />
           </div>
           {!isCollapsed && (
             <motion.div
