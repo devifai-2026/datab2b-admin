@@ -71,3 +71,16 @@ export default defineConfig([
   },
 ])
 ```
+
+## Monthly Export (Excel)
+
+A new admin page is available at `/export-monthly` that generates an Excel workbook with one sheet per month. It uses the `xlsx` (SheetJS) library. To install the dependency and test:
+
+```bash
+npm install xlsx
+npm run dev
+# Open http://localhost:5173 and navigate to the admin area, then click "Monthly Export"
+```
+
+Replace the sample data generation in `src/pages/MonthlyExportPage.tsx` with your API calls to populate real monthly data.
+

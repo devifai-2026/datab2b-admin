@@ -2,30 +2,27 @@ import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
 import { motion } from 'motion/react';
 import { Users, Database, Layers, TrendingUp, Loader2 } from 'lucide-react';
-import categoryService from '../services/categoryService';
-import dataService from '../services/dataService';
+import authService from '../services/authService';
 
 export default function DashboardPage() {
   const [statsData, setStatsData] = useState({
     categories: 0,
     datasets: 0,
-    users: 2840, // Simulated
-    revenue: '12.4L' // Simulated
+    users: 0,
+    revenue: 0
   });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [categories, datasets] = await Promise.all([
-          categoryService.getCategories(),
-          dataService.getAllData()
-        ]);
-        setStatsData(prev => ({
-          ...prev,
-          categories: categories.length,
-          datasets: datasets.length
-        }));
+        const stats = await authService.getDashboardStats();
+        setStatsData({
+          categories: stats.categories,
+          datasets: stats.datasets,
+          users: stats.users,
+          revenue: stats.revenue
+        });
       } catch (error) {
         console.error('Failed to fetch stats', error);
       } finally {
@@ -36,10 +33,10 @@ export default function DashboardPage() {
   }, []);
 
   const stats = [
-    { label: 'Total Categories', value: statsData.categories, icon: Layers, color: 'bg-orange-500', trend: '+2 this month' },
-    { label: 'Total Datasets', value: statsData.datasets, icon: Database, color: 'bg-emerald-500', trend: '+12% from last week' },
-    { label: 'Total Users', value: statsData.users, icon: Users, color: 'bg-amber-500', trend: '+150 today' },
-    { label: 'Revenue', value: `₹${statsData.revenue}`, icon: TrendingUp, color: 'bg-rose-500', trend: '+8% vs budget' },
+    { label: 'Total Categories', value: statsData.categories, icon: Layers, color: 'bg-orange-500', trend: 'Live count' },
+    { label: 'Total Datasets', value: statsData.datasets, icon: Database, color: 'bg-emerald-500', trend: 'Live count' },
+    { label: 'Total Users', value: statsData.users, icon: Users, color: 'bg-amber-500', trend: 'Live count' },
+    { label: 'Total Revenue', value: `₹${statsData.revenue.toLocaleString()}`, icon: TrendingUp, color: 'bg-rose-500', trend: 'Total paid' },
   ];
 
   return (

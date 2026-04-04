@@ -32,7 +32,10 @@ const downloadInvoice = async (invoiceId: string) => {
     const invoice = await getInvoiceById(invoiceId);
     console.log('Invoice data fetched:', invoice);
 
-    // Create HTML content for PDF
+    const totalAmount = invoice.amount;
+    const basePrice = Math.round(totalAmount / 1.18);
+    const gstAmount = totalAmount - basePrice;
+
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; padding: 40px; max-width: 900px;">
         <h1 style="text-align: center; color: #f97316; margin: 0;">INVOICE</h1>
@@ -61,7 +64,7 @@ const downloadInvoice = async (invoiceId: string) => {
             <tr style="background-color: #f97316; color: white;">
               <th style="padding: 12px; text-align: left;">Description</th>
               <th style="padding: 12px; text-align: center;">Qty</th>
-              <th style="padding: 12px; text-align: right;">Unit Price</th>
+              <th style="padding: 12px; text-align: right;">Base Price</th>
               <th style="padding: 12px; text-align: right;">Amount</th>
             </tr>
           </thead>
@@ -69,24 +72,24 @@ const downloadInvoice = async (invoiceId: string) => {
             <tr style="border-bottom: 1px solid #eee;">
               <td style="padding: 12px;">${invoice.productName}</td>
               <td style="padding: 12px; text-align: center;">${invoice.quantity}</td>
-              <td style="padding: 12px; text-align: right;">${invoice.currency} ${(invoice.amount / invoice.quantity).toFixed(2)}</td>
-              <td style="padding: 12px; text-align: right;">${invoice.currency} ${invoice.amount}</td>
+              <td style="padding: 12px; text-align: right;">${invoice.currency} ${(basePrice / invoice.quantity).toFixed(0)}</td>
+              <td style="padding: 12px; text-align: right;">${invoice.currency} ${basePrice}</td>
             </tr>
           </tbody>
         </table>
         
         <div style="text-align: right; margin: 30px 0;">
-          <div style="display: grid; grid-template-columns: 150px 100px; gap: 20px; margin: 10px 0;">
-            <div>Subtotal:</div>
-            <div>${invoice.currency} ${invoice.amount}</div>
+          <div style="display: grid; grid-template-columns: 200px 100px; gap: 20px; margin: 10px 0;">
+            <div>Subtotal (Base):</div>
+            <div>${invoice.currency} ${basePrice}</div>
           </div>
-          <div style="display: grid; grid-template-columns: 150px 100px; gap: 20px; margin: 10px 0;">
-            <div>Tax (0%):</div>
-            <div>0.00</div>
+          <div style="display: grid; grid-template-columns: 200px 100px; gap: 20px; margin: 10px 0;">
+            <div>GST (18%):</div>
+            <div>${invoice.currency} ${gstAmount}</div>
           </div>
-          <div style="display: grid; grid-template-columns: 150px 100px; gap: 20px; margin: 20px 0; border-top: 2px solid #f97316; padding-top: 10px;">
-            <div style="font-weight: bold; font-size: 16px;">TOTAL:</div>
-            <div style="font-weight: bold; font-size: 16px; color: #f97316;">${invoice.currency} ${invoice.amount}</div>
+          <div style="display: grid; grid-template-columns: 200px 100px; gap: 20px; margin: 20px 0; border-top: 2px solid #f97316; padding-top: 10px;">
+            <div style="font-weight: bold; font-size: 16px;">TOTAL (Inc. GST):</div>
+            <div style="font-weight: bold; font-size: 16px; color: #f97316;">${invoice.currency} ${totalAmount}</div>
           </div>
         </div>
         

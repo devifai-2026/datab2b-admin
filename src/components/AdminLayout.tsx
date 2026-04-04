@@ -3,6 +3,9 @@ import AdminSidebar from './AdminSidebar';
 import { motion } from 'motion/react';
 import { Menu, ChevronLeft, ChevronRight } from 'lucide-react';
 
+import authService from '../services/authService';
+import { Link } from 'react-router-dom';
+
 interface AdminLayoutProps {
   children: React.ReactNode;
   title: string;
@@ -11,6 +14,7 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children, title }: AdminLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const user = authService.getCurrentUser();
 
   return (
     <div className="flex h-screen bg-[#fef9f3] font-sans text-stone-900 overflow-hidden relative">
@@ -51,15 +55,15 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
             </motion.h1>
           </div>
           
-          <div className="flex items-center gap-3 md:gap-4 shrink-0">
+          <Link to="/profile" className="flex items-center gap-3 md:gap-4 shrink-0 hover:bg-stone-50 p-2 rounded-2xl transition-all group">
             <div className="hidden sm:flex flex-col items-end">
-              <span className="text-sm font-bold text-stone-900">Administrator</span>
-              <span className="text-xs font-medium text-stone-400">admin@datab2b.in</span>
+              <span className="text-sm font-bold text-stone-900 group-hover:text-orange-600 transition-colors">{user?.name || 'Administrator'}</span>
+              <span className="text-xs font-medium text-stone-400">{user?.email || 'admin@datab2b.in'}</span>
             </div>
-            <div className="h-9 w-9 md:h-10 md:w-10 rounded-full bg-gradient-to-tr from-orange-500 to-rose-500 border-2 border-white shadow-md flex items-center justify-center text-white font-bold text-sm md:text-base">
-              A
+            <div className="h-9 w-9 md:h-10 md:w-10 rounded-full bg-gradient-to-tr from-orange-500 to-rose-500 border-2 border-white shadow-md flex items-center justify-center text-white font-bold text-sm md:text-base group-hover:scale-110 transition-transform">
+              {(user?.name?.[0] || 'A').toUpperCase()}
             </div>
-          </div>
+          </Link>
         </header>
 
         <div className="flex-1 overflow-y-auto no-scrollbar-x p-4 md:p-10">

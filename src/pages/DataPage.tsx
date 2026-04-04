@@ -69,13 +69,13 @@ export default function DataPage() {
         name: currentDataset?.name,
         description: currentDataset?.description,
         location: currentDataset?.location,
-        price: currentDataset?.price,
-        totalRecords: currentDataset?.totalRecords,
-        link: currentDataset?.link,
-      };
-      console.log('Dataset Payload:', payload);
-
-      if (currentDataset?._id) {
+                        price: Math.round(Number(currentDataset?.price || 0) * 1.18), // Auto-add 18% GST (rounded)
+                        totalRecords: currentDataset?.totalRecords,
+                        link: currentDataset?.link,
+                      };
+                      console.log('Dataset Payload (inc. GST):', payload);
+                
+                      if (currentDataset?._id) {
         const updated = await dataService.updateData(currentDataset._id, payload);
         // Find category locally to maintain population
         const cat = categories.find(c => c._id === categoryId);
@@ -181,7 +181,7 @@ export default function DataPage() {
             <tr className="bg-stone-50 border-b border-stone-200">
               <th className="px-8 py-6 text-xs font-black uppercase tracking-widest text-stone-400">Dataset Info</th>
               <th className="px-8 py-6 text-xs font-black uppercase tracking-widest text-stone-400">Category</th>
-              <th className="px-8 py-6 text-xs font-black uppercase tracking-widest text-stone-400">Price</th>
+              <th className="px-8 py-6 text-xs font-black uppercase tracking-widest text-stone-400">Price (inc. GST)</th>
               <th className="px-8 py-6 text-xs font-black uppercase tracking-widest text-stone-400">Download Link</th>
               <th className="px-8 py-6 text-xs font-black uppercase tracking-widest text-stone-400 text-right">Actions</th>
             </tr>
@@ -217,8 +217,11 @@ export default function DataPage() {
                     </span>
                   </td>
                   <td className="px-8 py-6">
-                    <div className="font-bold text-stone-900 flex items-center gap-0.5">
-                       ₹{dataset.price}
+                    <div className="font-bold text-stone-900 flex items-center gap-0.5 whitespace-nowrap">
+                       ₹{dataset.price?.toLocaleString()}
+                    </div>
+                    <div className="text-[10px] text-stone-400 font-bold">
+                       Base: ₹{Math.round((dataset.price || 0) / 1.18)}
                     </div>
                   </td>
                   <td className="px-8 py-6">
@@ -239,7 +242,13 @@ export default function DataPage() {
                   <td className="px-8 py-6">
                     <div className="flex justify-end gap-3">
                       <button 
-                        onClick={() => { setCurrentDataset(dataset); setIsModalOpen(true); }}
+                        onClick={() => { 
+                          setCurrentDataset({ 
+                            ...dataset, 
+                            price: Math.round((dataset.price || 0) / 1.18) 
+                          }); 
+                          setIsModalOpen(true); 
+                        }}
                         className="h-10 w-10 flex items-center justify-center rounded-xl bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors"
                       >
                         <Edit2 size={16} />
@@ -371,7 +380,7 @@ export default function DataPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-stone-400 uppercase tracking-widest pl-1">Price (₹)</label>
+                    <label className="text-xs font-bold text-stone-400 uppercase tracking-widest pl-1">Base Price (₹)</label>
                     <div className="relative">
                       <IndianRupee className="absolute left-4 top-4 text-stone-300" size={18} />
                       <input
@@ -383,6 +392,11 @@ export default function DataPage() {
                         required
                       />
                     </div>
+                    {currentDataset?.price && currentDataset.price > 0 && (
+                      <div className="text-[10px] font-bold text-emerald-600 pl-1 animate-pulse">
+                        + 18% GST = ₹{Math.round(currentDataset.price * 1.18)} Total
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-2">
